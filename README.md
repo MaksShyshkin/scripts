@@ -38,38 +38,87 @@ brew install --cask session-manager-plugin
 brew install libpq && brew link --force libpq
 ```
 
+### Install on Linux (Ubuntu/Debian)
+
+```bash
+# AWS CLI
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip && sudo ./aws/install
+
+# Session Manager Plugin
+curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
+sudo dpkg -i session-manager-plugin.deb
+
+# PostgreSQL client (for RDS)
+sudo apt-get install postgresql-client
+```
+
 ## Installation
 
-### Option 1: Add scripts directory to PATH (Recommended)
-
-Add this line to your shell configuration file (`~/.zshrc` or `~/.bashrc`):
+### Step 1: Clone the repository
 
 ```bash
-export PATH="$PATH:/Users/mshyshkin/IdeaProjects/scripts"
+git clone git@github.com:MaksShyshkin/scripts.git ~/scripts
+# or using HTTPS:
+git clone https://github.com/MaksShyshkin/scripts.git ~/scripts
 ```
 
-Then reload your shell:
+### Step 2: Make scripts executable
 
 ```bash
-source ~/.zshrc  # or source ~/.bashrc
+chmod +x ~/scripts/*.sh
 ```
 
-### Option 2: Create symlinks in /usr/local/bin
+### Step 3: Add to PATH
+
+Choose one of the following options:
+
+#### Option A: Add scripts directory to PATH (Recommended)
+
+Add this line to your shell configuration file:
+
+**For Zsh (`~/.zshrc`):**
+```bash
+echo 'export PATH="$PATH:$HOME/scripts"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**For Bash (`~/.bashrc` or `~/.bash_profile`):**
+```bash
+echo 'export PATH="$PATH:$HOME/scripts"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+#### Option B: Create symlinks in /usr/local/bin
 
 ```bash
-ln -s /Users/mshyshkin/IdeaProjects/scripts/connect-ec2 /usr/local/bin/connect-ec2
-ln -s /Users/mshyshkin/IdeaProjects/scripts/connect-ecs /usr/local/bin/connect-ecs
-ln -s /Users/mshyshkin/IdeaProjects/scripts/connect-rds /usr/local/bin/connect-rds
+sudo ln -s ~/scripts/connect-ec2 /usr/local/bin/connect-ec2
+sudo ln -s ~/scripts/connect-ecs /usr/local/bin/connect-ecs
+sudo ln -s ~/scripts/connect-rds /usr/local/bin/connect-rds
 ```
 
-### Option 3: Create aliases
+#### Option C: Create aliases
 
 Add to your `~/.zshrc` or `~/.bashrc`:
 
 ```bash
-alias connect-ec2='/Users/mshyshkin/IdeaProjects/scripts/connect-ec2'
-alias connect-ecs='/Users/mshyshkin/IdeaProjects/scripts/connect-ecs'
-alias connect-rds='/Users/mshyshkin/IdeaProjects/scripts/connect-rds'
+alias connect-ec2='~/scripts/connect-ec2'
+alias connect-ecs='~/scripts/connect-ecs'
+alias connect-rds='~/scripts/connect-rds'
+```
+
+Then reload: `source ~/.zshrc` or `source ~/.bashrc`
+
+### Step 4: Verify installation
+
+```bash
+# Check if scripts are accessible
+which connect-ec2
+which connect-ecs
+which connect-rds
+
+# Test a script
+connect-ec2 --help
 ```
 
 ## Usage
@@ -90,6 +139,31 @@ connect-rds
 connect-ec2 --debug
 connect-ecs -d
 ```
+
+## Troubleshooting
+
+### "command not found" after adding to PATH
+
+1. Make sure you reloaded your shell config: `source ~/.zshrc`
+2. Verify PATH includes the scripts directory: `echo $PATH`
+3. Check scripts are executable: `ls -la ~/scripts/`
+
+### Permission denied
+
+```bash
+chmod +x ~/scripts/*.sh
+```
+
+### AWS credentials not working
+
+1. Verify AWS CLI is configured: `aws configure list`
+2. For SSO, run: `aws sso login --profile <your-profile>`
+
+## Security
+
+- No credentials are stored in these scripts
+- All AWS credentials are retrieved dynamically via AWS CLI/SSO
+- Database passwords are fetched from AWS Secrets Manager at runtime
 
 ## License
 
